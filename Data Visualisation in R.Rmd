@@ -1,0 +1,453 @@
+---
+title: "Community Contribution"
+author: "Yuchen Pei (yp2533), Jiaqi Tang (jt3169)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+
+---
+
+# R语言初学者指南：用R进行数据可视化
+
+当今世界是一个充满着数据的世界，对数据进行适当的分析并从中获取有意义的见解变得尤为重要。数据可视化则是一种可以从数据中挖掘出可能的关键信息的重要工具。如果数据分析的结果无法被正确可视化，它就不能有效地传达给预期的受众。
+
+在本教程中，我们将学习如何使用R统计语言分析和显示数据。我们将从一些基本的图表开始学习，并在教程的稍后部分继续介绍更高级的图表。
+
+---
+
+## 目录
+- [引入：R的基础](#1)
+- [初探：基础图表](#2)
+- [R语言里的可视化工具库](#3)
+- [进阶：地理数据的可视化](#4)
+- [结语](#5)
+
+---
+
+### 写在开始之前
+对R语言及其语法有一个基本了解能帮助您轻松入门。
+
+---
+
+<h3 id='1'>一、引入：R的基础</h3>
+#### 1. 概述
+**R**是一种用于统计计算和图像的语言及环境，它在创建可视化效果时极其灵活且易于使用。R的功能之一是用最少的代码生成高质量的绘图。
+
+#### 2. 安装
+我们将简要介绍安装R所需的步骤：
+
+1. 进入[R的主页](https://www.r-project.org/)并选择**CRAN**：**CRAN**是R综合档案网络的简称，它是包含了R的发行版、扩展包和文档的网站的集合。
+2. 选择离您最近的位置。
+3. 根据您的操作系统，下载并安装对应的R。
+
+*或者您可以选择在基础R GUI之上使用[`RStudio`](https://rstudio.com/)。*
+
+#### 3. 开始
+下载并安装好R之后，您可以从应用程序文件夹（macOS）或桌面图标（Windows）启动它。输入以下的命令以检查R是否已正确安装并运行：
+
+```{r}
+1
+'Hello World'
+```
+
+#### 4. 加载数据
+在R中，数据集可以是内置的，也可以从外部源中加载。
+
+- **内置数据集**是指R已经提供的数据集。在本文中我们将使用一个**空气质量(air quality)**数据集，该数据集是关于1973年5月至1973年9月在纽约进行的每日空气质量测量的数据。数据集中包含了100多条对6个变量的观测数据，这6个变量分别是**Ozone**（臭氧含量，每十亿分之一）、**Solar.R**（太阳辐射）、**Wind**（平均风速）、**Temp**（最高日温度，华氏度）、**Month**（观测月份）、**Day**（每月天数）。
+
+  要将内置数据集加载到R中，可以在控制台输入以下命令：
+  
+```{r}
+  data(airquality)
+```
+
+- 对于**外部数据源**（CSV、Excel、文本文档、HTML文件等），只需使用`setwd()`命令将包含数据的文件夹设置为工作目录即可。
+
+  ```
+  setwd(path of the folder where the file is located)
+  ```
+
+  现在我们可以使用`read`命令加载文件。在本教程中，数据是以CSV文件的形式存储的，文件名为**airquality.csv**，可以从[此处](https://github.com/parulnith/Data-Visualisation-with-R/blob/master/airquality.csv)下载。
+
+  ```
+  airquality = read.csv('airquality.csv',header=TRUE, sep=",")
+  ```
+
+  上述代码将文件**airquality.csv**读入数据框**airquality**中。`Header=TRUE`指定了数据包含标题，`sep=","`指定了数据中的值由逗号进行分割。
+
+#### 5. 探索数据
+一旦数据已经加载到工作环境中，我们就可以开始探索发现它的结构了。
+
+- `str(airquality)`
+  
+  显示R对象的内部结构，并提供数据集行列的快照。
+
+```{r}
+str(airquality)
+```
+  
+- `head(data, n)`与`tail(data, n)`
+
+  `head`命令输出数据集的前`n`个元素，而`tail`命令输出后`n`个元素。
+
+```{r}
+head(airquality, n=3)
+tail(airquality, n=3)
+```
+  
+- `summary(airquality)`
+
+  `summary`方法会根据变量的类型显示数据集中每个变量的描述性统计量。我们可以由此一目了然地看出各个变量的平均值、中位数、最大值和四分位数。
+
+```{r}
+summary(airquality)
+```
+  
+---
+
+<h3 id='2'>二、初探：基础图表</h3>
+R中的[图像扩展包](https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/graphics-package.html)是用来绘制如散点图、箱型图等基础图像的。完整的功能列表与它们的帮助文档可以通过输入`library(help = "graphics")`得到。
+
+#### 1. plot()函数
+
+- `plot()`函数是一种用于绘制R对象的通用函数。
+
+```{r}
+plot(airquality$Ozone)
+```
+
+  上图是一个散点图，其中每个点代表平均每十亿分之一的臭氧值。
+
+- 接下来我们绘制一个图像来研究`Ozone`和`Wind`这两个变量值之间的关系。
+
+```{r}
+plot(airquality$Ozone, airquality$Wind)
+```
+
+  这幅图显示了风速和臭氧值存在着一定的负相关性。
+
+- 如果我们不选择特定列而是对整个数据集使用`plot`命令呢？
+
+```{r}
+plot(airquality)
+```
+
+我们得到了一个散点图矩阵，它是所有列的相关矩阵。这幅图展示了：
+    
+  - 臭氧水平与温度呈正相关；
+  - 风速与温度、臭氧水平都呈负相关。
+
+*我们只需查看变量间的关系图就可以快速地发现它们之间的关系。*
+
+#### 带参数的plot()函数
+我们可以通过`plot()`函数的参数轻松地为图表设置样式。
+
+- ##### type参数
+`plot()`函数的`type`参数可以接受诸如这类的值：`p`代表点，`l`代表线，`b`代表两者皆可……这个参数决定了输出图像的形状。
+
+```{r}
+# points and lines 
+plot(airquality$Ozone, type= "b")
+```
+
+```{r}
+# high density vertical lines.
+plot(airquality$Ozone, type= "h")
+```
+
+*如果您想了解更多关于`plot()`命令的信息，可以在控制台中输入`?plot()`。*
+
+- ##### 标签（label）与标题（title）
+我们可以为X轴和Y轴添加标签并给图像取标题。此外，我们还可以选择给图像上色。
+
+```{r}
+plot(airquality$Ozone, xlab = 'ozone Concentration', ylab = 'No of Instances', main = 'Ozone levels in NY city', col = 'green')
+```
+
+
+#### 2. 条形图
+在条形图中，数据以矩形条的形式表示。条的长度与变量的值或列的值成比例。 通过调整`horiz`参数，可以生成水平和垂直条形图。
+
+```{r}
+# Horizontal bar plot
+barplot(airquality$Ozone, main = 'Ozone Concenteration in air',xlab = 'ozone levels', col= 'green',horiz = TRUE)
+```
+
+```{r}
+# Vertical bar plot
+barplot(airquality$Ozone, main = 'Ozone Concenteration in air',xlab = 'ozone levels', col='red',horiz = FALSE)
+```
+
+
+#### 3. 直方图
+直方图与条形图非常类似，不同的是它将数据值以连续区间划分。直方图表示了变量值落在这些区间内的频率。
+
+```{r}
+hist(airquality$Solar.R)
+```
+
+我们得到了`Solar.R`值的直方图如上，通过为`color`参数赋值，我们又可以得到一个彩色的直方图。
+
+```{r}
+hist(airquality$Solar.R, main = 'Solar Radiation values in air',xlab = 'Solar rad.', col='red')
+```
+
+#### 4. 箱型图
+上文中我们已经介绍了如何通过R中的`summary()`命令显示数据集中每个变量的描述性统计量。而箱型图以四分位数的形式将这些统计量通过图形展示出来。在R中描绘箱型图非常简单：
+
+```{r}
+#Single box plot
+boxplot(airquality$Solar.R)
+```
+
+```{r}
+# Multiple box plots
+boxplot(airquality[,0:4], main='Multiple Box plots')
+```
+
+#### 5. 图表栅格
+R中有一个非常有趣的功能，它使我们能够一次绘制多个图表。由于它减少了一张一张绘制多个图表的繁琐，在EDA中十分好用。
+
+对于绘制栅格，首先需要制定一些属性，例如网格的边距（`mar`）、行数和列数（`mfrow`）、是否包括边框（`bty`）、标签的位置（`las`：1表示水平方向，0表示竖直方向）。
+
+```{r}
+par(mfrow=c(3,3), mar=c(2,5,2,1), las=1, bty="n")
+plot(airquality$Ozone)
+plot(airquality$Ozone, airquality$Wind)
+plot(airquality$Ozone, type= "c")
+plot(airquality$Ozone, type= "s")
+plot(airquality$Ozone, type= "h")
+barplot(airquality$Ozone, main = 'Ozone Concenteration in air',xlab = 'ozone levels', col='green',horiz = TRUE)
+hist(airquality$Solar.R)
+boxplot(airquality$Solar.R)
+boxplot(airquality[,0:4], main='Multiple Box plots')
+```
+
+*注：您可以输入`?plot name`以查看函数功能文档，了解更多关于某一给定函数的知识。同时，`example(plot)`可以直接在控制台中运行绘图的示例。*
+
+---
+
+<h3 id='3'>三、R中的可视化库</h3>
+R中配备了许多功能强大的可视化库。接下来我们将详细介绍一些常用的库。
+
+在这部分中，我们会使用内置的[`mtcar dataset`](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)来展示不同库的使用结果。这个数据集摘自1974年《美国汽车趋势》杂志。
+
+#### 1. Lattice graphs
+[Lattice](https://stat.ethz.ch/R-manual/R-devel/library/lattice/html/Lattice.html)库主要是对R图形库的改进，用于多元数据的可视化。Lattice使我们可以使用***trellis graph（格子图）***。格子图显示了单变量或多变量之间的依赖关系。我们将从安装和加载软件包开始介绍：
+```{r}
+#Installing & Loading the package
+#install.packages("lattice")
+library(lattice)
+
+#Loading the dataset
+attach(mtcars)
+```
+
+**attach**函数将数据库添加到R的搜索路径中，因此我们只需提供名称即可访问数据库中的对象。 （更多详细信息，请参见`？attach（）`）
+```{r}
+#Exploring the dataset
+
+head(mtcars)
+```
+
+在开始使用lattice库工作之前，我们需要先对数据进行一些预处理。mtcars数据集中有两列——**gear**和**cyl**，它们本质上是类别数据，我们需要将它们分解（映射到数字上）以使其更有意义。
+```{r}
+gear_factor<-factor(gear,levels=c(3,4,5),
+                    labels=c("3gears","4gears","5gears"))
+
+cyl_factor<-factor(cyl,levels=c(4,6,8),
+                   labels=c("4cyl","6cyl","8cyl"))
+```
+
+*注：由于我们已经添加了了数据集`mtcars`，因此不需要指定`mtcars$gear`或`mtcars$cyl`。*
+
+现在让我们看看如何使用**lattice**库在R中创建一些基本图。
+
+
+* ##### 密度图
+```{r}
+densityplot(~mpg,main="Density Plot", xlab="Miles per Gallon")
+```
+
+使用lattice库非常简单。只需插入需要绘图的列即可。
+
+
+* ##### 散点图
+```{r}
+splom(mtcars[c(1,3,4,5,6)],main='MTCARS Data')
+```
+
+
+* ##### 描述了两个因子组合的散点图
+```{r}
+xyplot(mpg~wt|cyl_factor*gear_factor,
+       main="Scatterplots : Cylinders and Gears",  
+       ylab="Miles/Gallon", xlab="Weight of Car")
+```
+
+#### 2. ggplot2
+[ggplot2](https://cran.r-project.org/web/packages/ggplot2/index.html)软件包是R中使用最广泛的可视化软件包之一。它使用户可以使用**图形语法**以很少的代码创建复杂的可视化。[图形语法](https://en.wikipedia.org/wiki/Ggplot2)是用于数据可视化的通用方案，该方案将图形分解为诸如比例和图层之类的语义成分。
+
+由于ggplot2可以以非常简单的方式创建同时包含单变量和多变量数据的图形，近年来它变得越来越流行。
+
+```{r}
+#Installing & Loading the package 
+   
+#install.packages("ggplot2") 
+library(ggplot2)
+   
+#Loading the dataset
+attach(mtcars)
+# create factors with value labels 
+ 
+mtcars$gear <- factor(mtcars$gear,levels=c(3,4,5),  
+labels=c("3gears", "4gears", "5gears"))  
+mtcars$am <- factor(mtcars$am,levels=c(0,1),  
+labels=c("Automatic","Manual"))  
+mtcars$cyl <- factor(mtcars$cyl,levels=c(4,6,8),  
+labels=c("4cyl","6cyl","8cyl"))
+```
+
+让我们用一些实例来了解ggplot2的功能:
+
+* ##### 散点图
+```{r}
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg)) + geom_point()
+```
+
+`geom_point()`用于创建散点图，geom可以有多种变种，例如`geom_jitter()`，`geoom_count()`等。
+
+* ##### 按因子划分的散点图
+数据集`mtcars`是由一些变量构成的，这些变量以因子的形式存储。我们可以用这个特征拆分数据集。
+```{r}
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg, color = as.factor(cyl))) + geom_point()
+```
+
+参数`color`用于区分`cyl`变量的不同因子水平。
+
+* ##### 按大小划分的散点图
+ggplot2的另一个实用功能是根据属性的大小设置样式。
+```{r}
+ggplot(data = mtcars, mapping = aes(x = wt, y = mpg, size = qsec)) + geom_point()
+```
+
+在上面的示例中，`qsec`的值表示加速度，它决定了点数的大小。
+
+* ##### 不同大小的不同符号
+使用ggplot2，我们还可以通过分层绘制多个大小不同的点来创建独特而有趣的形状。
+```{r}
+p  <-  ggplot(mtcars,aes(mpg, wt, shape  =  factor(cyl)))
+p + geom_point(aes(colour  =  factor(cyl)), size  =  4) + 
+  geom_point(colour  =  "grey90", size  =  1.5)
+```
+
+#### 3. Plotly
+[Plotly](https://github.com/ropensci/plotly#readme)是一个R包，它可以通过开源JavaScript图形库[plotly.js](https://plot.ly/javascript/)创建基于网页的交互式图形。它还可以轻松地将ggplot2图像转换为适于网页的版本。
+```{r}
+#Installing & Loading the package 
+#install.packages("plotly")
+library(plotly)
+```
+
+现在让我们看看如何利用plotly创建交互式可视化效果。我们将使用与lattice图演示中相同的`mtcars`数据集。
+
+* ##### 基本的散点图
+```{r}
+p <- plot_ly(data = mtcars, x = ~hp, y = ~wt)
+p
+```
+
+上图也可以以网页形式导出，能保持其完整的交互性。
+
+* ##### 有样式的散点图
+可以通过提供适当的颜色码来设置散点图的样式。
+```{r}
+p <- plot_ly(data = mtcars, x = ~hp, y = ~wt, 
+             marker = list(size = 10, color = 'rgba(255, 182, 193, .9)', 
+                           line = list(color = 'rgba(152, 0, 0, .8)',
+                                       width = 2)))
+p
+```
+
+* ##### 标记和线条
+也可以用plotly在同一张图中绘制标记和线条。这一步我们将创建一个任意数据框来展示此功能。
+```{r}
+data1 <- rnorm(100, mean = 10)   
+data2 <- rnorm(100, mean = 0)   
+data3 <- rnorm(100, mean = -10)   
+x <- c(1:100)
+data <- data.frame(x, data1, data2, data3)
+p <- plot_ly(data, x = ~x)%>%   
+    
+add_trace(y = ~data1, name = 'data1',mode = 'lines')%>%             
+add_trace(y = ~data2, name = 'data2', mode = 'lines+markers')%>% 
+add_trace(y = ~data3, name = 'data3', mode = 'markers')
+
+p
+```
+
+* ##### 加入颜色和大小的映射
+```{r}
+p <- plot_ly(data = mtcars, x =~hp, y = ~wt,color = ~hp, size = ~hp )
+p
+```
+
+*尽管以上这些库并不是R中用于可视化的库的全部，但它们应该足以帮助你入门。*
+
+---
+
+<h3 id='4'>四、进阶：地理数据的可视化</h3>
+地理数据（**Geo data**）与基于位置的数据有关。 它主要描述了对象在空间中的关系。
+
+数据通常会以坐标的形式存储，而以地图的形式查看州或国家/地区能够提供更直观的概览。在下面的部分中，我们将简要介绍R在地理数据可视化方面的功能。
+
+#### 1. 地理数据
+我们将使用[ABC公司](https://github.com/parulnith/Data-Visualisation-with-R/blob/master/Visualisation%20geographical%20data/ABC_locations.csv)的超市示例数据集。这个数据集包含了其在美国的商店位置。让我们先加载数据并查看列信息。
+```{r}
+data <- read.csv('ABC_locations.csv', sep=",")
+head(data)
+```
+
+#### 2. plot() 函数
+我们可以仅通过“纬度”和“经度”列先创建一个原始地图。
+```{r}
+plot(data$Longitude,data$Latitude)
+```
+
+这个输出不是精确的美国地图，但确实给出了美国边界的模糊轮廓。
+
+#### 3. map() 函数
+**地图库**在绘制地理数据时非常有用且简单。
+```{r}
+# Install package 
+# install.packages("maps", dependencies=TRUE)
+# Loading the installed maps package
+library(maps)
+```
+
+- ##### 使用map()函数绘制美国的基本地图
+```{r}
+map(database="state")
+```
+
+- ##### 使用symbol()函数在基础图的上面构建点图
+```{r}
+map(database="state")
+symbols(data$Longitude, data$Latitude, squares =rep(1, length(data$Longitude)), inches=0.03, add=TRUE)
+```
+
+#### 4. 给符号赋予颜色
+```{r}
+map(database="state")
+symbols(data$Longitude, data$Latitude,bg = 'red', fg = 'red', squares =rep(1, length(data$Longitude)), inches=0.03, add=TRUE)
+```
+
+与map函数一起使用的命令是显而易见的。但是，您可以阅读其[文档](https://cran.r-project.org/web/packages/maps/maps.pdf)得到更多有关此内容的信息。
+
+在数据集是由位置点构成的情况下，地理数据可视化非常重要。我们用R可以轻松地将确切的位置和区域进行可视化，并绘制出更好的图像。
+
+<h3 id='5'>五、结语</h3>
+我们已经看到了使用R进行数据可视化是多么简单、容易。人们可以选择从头开始自己创建数据的可视化处理，也可以使用R中预构建的软件库。但无论你选择什么，R的可视化功能都是无穷的。
